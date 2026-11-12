@@ -1,0 +1,26 @@
+{
+  "name": "supabase-express-backend",
+  "version": "1.0.0",
+  "description": "Portable authentication and PostgreSQL database engine using Node.js, Express, and Supabase.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.7.4"
+  },
+  "keywords": [
+    "supabase",
+    "express",
+    "node",
+    "authentication",
+    "postgresql"
+  ],
+  "author": "Senior Backend Architect",
+  "license": "ISC"
+}
