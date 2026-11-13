@@ -34,14 +34,6 @@ SUPABASE_URL	Your project URL
 SUPABASE_ANON_KEY	Client-safe key. Respects RLS.
 SUPABASE_SERVICE_ROLE_KEY	Server only. Bypasses RLS.
 PASSWORD_RESET_REDIRECT_URL	Frontend page for the reset link (whitelist it in Supabase → Auth → URL Configuration)
-5. Run
-bash
-npm run dev
-🔌 API routes
-
-Public: POST /api/auth/signup, POST /api/auth/login, POST /api/auth/forgot-password
-
-Protected (header Authorization: Bearer <access_token>): POST /api/auth/signout, PUT /api/auth/update-password, GET /api/auth/me
 
 ✅ Verify RLS
 bash
@@ -67,3 +59,6 @@ You own the code once you have it. Each release ships with a CHANGELOG listing t
 🧪 Dev tip
 
 Supabase's built-in email is heavily rate-limited. While developing, turn off Confirm email (Authentication → Providers → Email). For production, set up a custom SMTP provider.
+
+
+This is a stripped-down demo of the key setup and RLS test. The auth routes and server wiring are in the full kit.

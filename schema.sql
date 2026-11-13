@@ -17,4 +17,56 @@ alter table public.profiles enable row level security;
 -- RLS Policies for Profiles (owner-only)
 -- Drop first so this file can be re-run safely
 drop policy if exists "Users can view own profile" on public.profiles;
-drop policy if exists
+drop policy if exists "Users can update own profile" on public.profiles;
+
+create policy "Users can view own profile"
+  on public.profiles for select
+  to authenticated
+  using ( auth.uid() = id );
+
+create policy "Users can update own profile"
+  on public.profiles for update
+  to authenticated
+  using ( auth.uid() = id )
+  with check ( auth.uid() = id );
+
+-- No INSERT policy on purpose: profiles are created only by the
+-- handle_new_user() trigger below, so clients can't insert rows directly.
+
+-- Function to automatically update updated_at timestamp
+create or replace function public.handle_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = timezone('utc'::text, now());
+  return new;
+end;
+$$ language plpgsql set search_path = public;
+
+-- Trigger for updated_at on profiles
+drop trigger if exists on_profiles_updated on public.profiles;
+create trigger on_profiles_updated
+  before update on public.profiles
+  for each row
+  execute procedure public.handle_updated_at();
+
+-- Function to automatically provision a profile row upon user signup
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, email, full_name, avatar_url)
+  values (
+    new.id,
+    new.email,
+    new.raw_user_meta_data->>'full_name',
+    new.raw_user_meta_data->>'avatar_url'
+  );
+  return new;
+end;
+$$ language plpgsql security definer set search_path = public;
+
+-- Trigger linked to auth.users creation
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row
+  execute procedure public.handle_new_user();
