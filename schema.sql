@@ -14,6 +14,13 @@ create table if not exists public.profiles (
 -- Enable Row-Level Security (RLS)
 alter table public.profiles enable row level security;
 
+-- Explicit grants (required on projects created after 2026-05-30, and on every
+-- project for new tables after 2026-10-30; Supabase no longer auto-grants).
+-- Grants decide if a role can touch the table at all; RLS decides which rows.
+revoke all on table public.profiles from anon;
+grant select, update on table public.profiles to authenticated;
+grant select, insert, update, delete on table public.profiles to service_role;
+
 -- RLS Policies for Profiles (owner-only)
 -- Drop first so this file can be re-run safely
 drop policy if exists "Users can view own profile" on public.profiles;
@@ -40,7 +47,7 @@ begin
   new.updated_at = timezone('utc'::text, now());
   return new;
 end;
-$$ language plpgsql set search_path = public;
+$$ language plpgsql set search_path = '';
 
 -- Trigger for updated_at on profiles
 drop trigger if exists on_profiles_updated on public.profiles;
@@ -62,7 +69,7 @@ begin
   );
   return new;
 end;
-$$ language plpgsql security definer set search_path = public;
+$$ language plpgsql security definer set search_path = '';
 
 -- Trigger linked to auth.users creation
 drop trigger if exists on_auth_user_created on auth.users;
